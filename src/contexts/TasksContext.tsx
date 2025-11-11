@@ -16,6 +16,8 @@ interface TasksContextType {
     category: string;
     search: string;
     setSearch: (search: string) => void;
+    allTasks: Task[];
+    setAllTasks: (tasks: Task[]) => void;
 }
 
 const TasksContext = createContext<TasksContextType | null>(null);
@@ -34,8 +36,12 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
             setLoading(true);
             const data = await getAllTasks();
             if (data) {
-                setAllTasks(data);
-                setTasks(data);
+                const orderedData = data.map((task: Task, index: number) => ({
+                    ...task,
+                    position: index,
+                }));
+                setAllTasks(orderedData);
+                setTasks(orderedData);
             } else {
                 setAllTasks(null);
                 setTasks(null);
@@ -54,9 +60,11 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
             );
         }
 
-        return filteredTasks.filter((task) =>
-            task.todo.toLowerCase().includes(search.toLowerCase())
-        );
+        return filteredTasks
+            .filter((task) =>
+                task.todo.toLowerCase().includes(search.toLowerCase())
+            )
+            .sort((a, b) => a.position - b.position);
     };
 
     useEffect(() => {
@@ -66,7 +74,7 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
     const deleteTask = async (taskId: number) => {
         const deletedTask = await removeTask(taskId);
         if (deletedTask) {
-            setTasks((prevTasks) =>
+            setAllTasks((prevTasks) =>
                 prevTasks ? prevTasks.filter((task) => task.id !== taskId) : []
             );
         }
@@ -75,10 +83,12 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
     const editTask = async (taskId: number, newTask: Task) => {
         const editedTask = await updateTask(taskId, newTask);
         if (editedTask) {
-            setTasks((prevTasks) =>
+            setAllTasks((prevTasks) =>
                 prevTasks
                     ? prevTasks.map((task) =>
-                          task.id === taskId ? editedTask : task
+                          task.id === taskId
+                              ? { ...editedTask, position: newTask.position }
+                              : task
                       )
                     : []
             );
@@ -99,6 +109,8 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
                     setStatus,
                     search,
                     setSearch,
+                    allTasks,
+                    setAllTasks,
                 } as TasksContextType
             }
         >

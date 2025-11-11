@@ -4,12 +4,12 @@ import { Checkbox } from "./ui/checkbox";
 import { useState } from "react";
 import { useTasks } from "@/contexts/TasksContext";
 import { Button } from "./ui/button";
-import { Check, Edit, Trash2 } from "lucide-react";
+import { Check, Edit, GripVertical, Trash2 } from "lucide-react";
 import { Input } from "./ui/input";
 
-type TaskProps = { task: Task };
+type TaskProps = { task: Task; dragHandleProps: any };
 
-export default function TaskCard({ task }: TaskProps) {
+export default function TaskCard({ task, dragHandleProps }: TaskProps) {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [content, setContent] = useState<string>(task.todo || "");
     const [isDone, setIsDone] = useState<boolean>(task.completed || false);
@@ -33,11 +33,18 @@ export default function TaskCard({ task }: TaskProps) {
     return (
         <Card className="p-4 w-full bg-background border shadow-xs hover:shadow-sm transition-all duration-200 hover:border-primary/20 group cursor-pointer">
             <div className="flex items-center gap-4">
-                <Checkbox
-                    className="w-5 h-5 mt-0.5 transition-colors"
-                    checked={task.completed}
-                    onCheckedChange={() => handleToggle(task.id)}
-                />
+                <div className="flex items-center gap-2">
+                    <GripVertical
+                        className="w-5 h-5  text-muted-foreground cursor-move"
+                        {...dragHandleProps}
+                    />
+                    <Checkbox
+                        className="w-5 h-5  transition-colors"
+                        // Add checked state and onChange handler if needed
+                        checked={task.completed}
+                        onCheckedChange={() => handleToggle(task.id)}
+                    />
+                </div>
 
                 <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
