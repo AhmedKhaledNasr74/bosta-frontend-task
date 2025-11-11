@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useTasks } from "@/contexts/TasksContext";
 import { Button } from "./ui/button";
 import { Check, Edit, GripVertical, Trash2 } from "lucide-react";
-import { Input } from "./ui/input";
+import { useCategories } from "@/contexts/CategoriesContext";
 
 type TaskProps = { task: Task; dragHandleProps: any };
 
@@ -30,6 +30,8 @@ export default function TaskCard({ task, dragHandleProps }: TaskProps) {
     };
 
     const { deleteTask, editTask } = useTasks();
+    const { categories } = useCategories();
+    const category = categories.find((c) => c.id === task.categoryId);
     return (
         <Card className="p-4 w-full bg-background border shadow-xs hover:shadow-sm transition-all duration-200 hover:border-primary/20 group cursor-pointer">
             <div className="flex items-center gap-4">
@@ -40,7 +42,6 @@ export default function TaskCard({ task, dragHandleProps }: TaskProps) {
                     />
                     <Checkbox
                         className="w-5 h-5  transition-colors"
-                        // Add checked state and onChange handler if needed
                         checked={task.completed}
                         onCheckedChange={() => handleToggle(task.id)}
                     />
@@ -49,7 +50,7 @@ export default function TaskCard({ task, dragHandleProps }: TaskProps) {
                 <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                         {isEditing ? (
-                            <Input
+                            <textarea
                                 defaultValue={task.todo}
                                 onChange={(e) => setContent(e.target.value)}
                                 onKeyDown={(e) => {
@@ -58,15 +59,52 @@ export default function TaskCard({ task, dragHandleProps }: TaskProps) {
                                     }
                                 }}
                                 autoFocus
-                                type="text"
-                                className="w-full bg-background border border-border focus:border-primary focus:ring-0 shadow-sm"
+                                className="w-full  bg-background border border-border focus:border-primary focus:ring-0 shadow-sm"
                             />
                         ) : (
-                            <div className="text-foreground text-base font-medium leading-relaxed">
-                                {task.todo}
+                            <div className="w-full relative flex items-center justify-between gap-2">
+                                <div className="text-foreground  text-base font-medium leading-relaxed wrap-anywhere z-10">
+                                    {task.todo}
+                                </div>
+                                {category && (
+                                    <span
+                                        className="px-2 py-1 rounded-full text-xs font-medium h-fit"
+                                        style={{
+                                            backgroundColor:
+                                                category.color + "22", // transparent bg
+                                            color: category.color,
+                                        }}
+                                    >
+                                        {category.name}
+                                    </span>
+                                )}
                             </div>
                         )}
                     </div>
+
+                    {/* {task.dueDate && (
+                                <div className="flex items-center gap-2 mt-3">
+                                    <svg
+                                        className="w-4 h-4 text-muted-foreground"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                        />
+                                    </svg>
+                                    <span className="text-xs text-muted-foreground">
+                                        Due{" "}
+                                        {new Date(
+                                            task.dueDate
+                                        ).toLocaleDateString()}
+                                    </span>
+                                </div>
+                            )} */}
                 </div>
 
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

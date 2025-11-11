@@ -1,23 +1,27 @@
-import { getAllTasks, removeTask, updateTask } from "@/apis/taskManagement";
-
+import {
+    addNewTask,
+    getAllTasks,
+    removeTask,
+    updateTask,
+} from "@/apis/taskManagement";
 import type Task from "@/interfaces/Task";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface TasksContextType {
     tasks: Task[];
+    allTasks: Task[];
+    setAllTasks: (tasks: Task[]) => void;
     setTasks: (tasks: Task[]) => void;
     deleteTask: (taskId: number) => Promise<void>;
     editTask: (taskId: number, newTask: Task) => Promise<void>;
-    addTask: (task: Task) => Promise<void>;
-    loading: boolean;
+    addTask: (task: Task) => Promise<any>;
     setStatus: (status: string) => void;
     setCategory: (category: string) => void;
     status: string;
     category: string;
+    loading: boolean;
     search: string;
     setSearch: (search: string) => void;
-    allTasks: Task[];
-    setAllTasks: (tasks: Task[]) => void;
 }
 
 const TasksContext = createContext<TasksContextType | null>(null);
@@ -26,11 +30,9 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
     const [allTasks, setAllTasks] = useState<Task[] | null>([]);
     const [tasks, setTasks] = useState<Task[] | null>([]);
     const [loading, setLoading] = useState<boolean>(false);
-
     const [status, setStatus] = useState<string>("all");
     const [category, setCategory] = useState<string>("all");
     const [search, setSearch] = useState<string>("");
-
     useEffect(() => {
         const fetchTasks = async () => {
             setLoading(true);
@@ -60,6 +62,12 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
             );
         }
 
+        if (category !== "all") {
+            filteredTasks = filteredTasks.filter(
+                (task) => task.categoryId === category
+            );
+        }
+
         return filteredTasks
             .filter((task) =>
                 task.todo.toLowerCase().includes(search.toLowerCase())
@@ -72,7 +80,7 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
     }, [category, status, allTasks, search]);
 
     const deleteTask = async (taskId: number) => {
-        const deletedTask = await removeTask(taskId);
+        const deletedTask = await removeTask(1);
         if (deletedTask) {
             setAllTasks((prevTasks) =>
                 prevTasks ? prevTasks.filter((task) => task.id !== taskId) : []
@@ -81,13 +89,13 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const editTask = async (taskId: number, newTask: Task) => {
-        const editedTask = await updateTask(taskId, newTask);
+        const editedTask = await updateTask(1, newTask);
         if (editedTask) {
             setAllTasks((prevTasks) =>
                 prevTasks
                     ? prevTasks.map((task) =>
                           task.id === taskId
-                              ? { ...editedTask, position: newTask.position }
+                              ? { ...newTask, position: newTask.position }
                               : task
                       )
                     : []
@@ -95,10 +103,34 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
+    const addTask = async (task: Task) => {
+        const addedTask = await addNewTask(task);
+
+        if (addedTask) {
+            setAllTasks((prevTasks) => {
+                if (!prevTasks) return [{ ...task, position: 1 }];
+
+                const updatedTasks = [
+                    { ...task, position: 1 },
+                    ...prevTasks.map((t) => ({
+                        ...t,
+                        position: t.position + 1,
+                    })),
+                ];
+
+                return updatedTasks;
+            });
+        }
+
+        return addedTask;
+    };
+
     return (
         <TasksContext.Provider
             value={
                 {
+                    allTasks,
+                    setAllTasks,
                     tasks,
                     loading,
                     deleteTask,
@@ -109,8 +141,7 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
                     setStatus,
                     search,
                     setSearch,
-                    allTasks,
-                    setAllTasks,
+                    addTask,
                 } as TasksContextType
             }
         >

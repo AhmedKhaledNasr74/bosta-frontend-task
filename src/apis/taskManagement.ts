@@ -1,6 +1,6 @@
 import toast from "react-hot-toast";
 import { api, handleAxiosError } from "./apiClient";
-import type Task from "../interfaces/Task";
+import type Task from "@/interfaces/Task";
 
 export const getAllTasks = async () => {
     try {
@@ -11,9 +11,10 @@ export const getAllTasks = async () => {
     }
 };
 
-export const addTask = async (task: Task) => {
+export const addNewTask = async (task: Task) => {
     try {
-        const response = await api.post("/add", task);
+        const response = await api.post("/todos/add", task);
+        toast.success("Task Added successfully");
         return response.data;
     } catch (error) {
         toast.error(handleAxiosError(error).message);
