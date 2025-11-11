@@ -10,24 +10,58 @@ interface TasksContextType {
     editTask: (taskId: number, newTask: Task) => Promise<void>;
     addTask: (task: Task) => Promise<void>;
     loading: boolean;
+    setStatus: (status: string) => void;
+    setCategory: (category: string) => void;
+    status: string;
+    category: string;
+    search: string;
+    setSearch: (search: string) => void;
 }
 
 const TasksContext = createContext<TasksContextType | null>(null);
 
 export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
+    const [allTasks, setAllTasks] = useState<Task[] | null>([]);
     const [tasks, setTasks] = useState<Task[] | null>([]);
     const [loading, setLoading] = useState<boolean>(false);
+
+    const [status, setStatus] = useState<string>("all");
+    const [category, setCategory] = useState<string>("all");
+    const [search, setSearch] = useState<string>("");
 
     useEffect(() => {
         const fetchTasks = async () => {
             setLoading(true);
             const data = await getAllTasks();
-            if (data) setTasks(data);
-            else setTasks(null);
+            if (data) {
+                setAllTasks(data);
+                setTasks(data);
+            } else {
+                setAllTasks(null);
+                setTasks(null);
+            }
             setLoading(false);
         };
         fetchTasks();
     }, []);
+
+    const filterTasks = () => {
+        let filteredTasks = allTasks ? [...allTasks] : [];
+        if (status !== "all") {
+            const isCompleted = status === "completed";
+            filteredTasks = filteredTasks.filter(
+                (task) => task.completed === isCompleted
+            );
+        }
+
+        return filteredTasks.filter((task) =>
+            task.todo.toLowerCase().includes(search.toLowerCase())
+        );
+    };
+
+    useEffect(() => {
+        setTasks(filterTasks());
+    }, [category, status, allTasks, search]);
 
     const deleteTask = async (taskId: number) => {
         const deletedTask = await removeTask(taskId);
@@ -53,7 +87,20 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <TasksContext.Provider
-            value={{ tasks, loading, deleteTask, editTask } as TasksContextType}
+            value={
+                {
+                    tasks,
+                    loading,
+                    deleteTask,
+                    editTask,
+                    category,
+                    status,
+                    setCategory,
+                    setStatus,
+                    search,
+                    setSearch,
+                } as TasksContextType
+            }
         >
             {children}
         </TasksContext.Provider>
