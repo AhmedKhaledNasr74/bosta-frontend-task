@@ -1,4 +1,5 @@
-import { getAllTasks, removeTask } from "@/apis/taskManagement";
+import { getAllTasks, removeTask, updateTask } from "@/apis/taskManagement";
+
 import type Task from "@/interfaces/Task";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -37,9 +38,22 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
+    const editTask = async (taskId: number, newTask: Task) => {
+        const editedTask = await updateTask(taskId, newTask);
+        if (editedTask) {
+            setTasks((prevTasks) =>
+                prevTasks
+                    ? prevTasks.map((task) =>
+                          task.id === taskId ? editedTask : task
+                      )
+                    : []
+            );
+        }
+    };
+
     return (
         <TasksContext.Provider
-            value={{ tasks, loading, deleteTask } as TasksContextType}
+            value={{ tasks, loading, deleteTask, editTask } as TasksContextType}
         >
             {children}
         </TasksContext.Provider>
