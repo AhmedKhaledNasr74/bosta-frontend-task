@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { useTasks } from "@/contexts/TasksContext";
 
 export default function TasksList() {
-    const { tasks, loading } = useTasks();
+    const { tasks, loading, deleteTask } = useTasks();
 
     if (loading)
         return (
@@ -69,6 +69,7 @@ export default function TasksList() {
                             <Button
                                 variant={"ghost"}
                                 className="p-1.5! h-fit text-muted-foreground hover:text-destructive hover:bg-accent rounded-md transition-colors"
+                                onClick={() => deleteTask(task.id)}
                             >
                                 <Trash2 className="w-4 h-4" />
                             </Button>

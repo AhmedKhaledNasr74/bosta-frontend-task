@@ -1,4 +1,4 @@
-import { getAllTasks } from "@/apis/taskManagement";
+import { getAllTasks, removeTask } from "@/apis/taskManagement";
 import type Task from "@/interfaces/Task";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -16,6 +16,7 @@ const TasksContext = createContext<TasksContextType | null>(null);
 export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
     const [tasks, setTasks] = useState<Task[] | null>([]);
     const [loading, setLoading] = useState<boolean>(false);
+
     useEffect(() => {
         const fetchTasks = async () => {
             setLoading(true);
@@ -27,8 +28,19 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
         fetchTasks();
     }, []);
 
+    const deleteTask = async (taskId: number) => {
+        const deletedTask = await removeTask(taskId);
+        if (deletedTask) {
+            setTasks((prevTasks) =>
+                prevTasks ? prevTasks.filter((task) => task.id !== taskId) : []
+            );
+        }
+    };
+
     return (
-        <TasksContext.Provider value={{ tasks, loading } as TasksContextType}>
+        <TasksContext.Provider
+            value={{ tasks, loading, deleteTask } as TasksContextType}
+        >
             {children}
         </TasksContext.Provider>
     );
