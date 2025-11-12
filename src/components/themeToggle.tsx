@@ -11,7 +11,7 @@ export const ThemeToggle: React.FC = () => {
             aria-label={`Switch to ${
                 theme === "light" ? "dark" : "light"
             } mode`}
-            className="relative h-fit hover:bg-primary/50 flex items-center rounded-md p-1 bg-muted border border-border transition-all duration-200 ease-in-out "
+            className="relative hover:bg-primary/50 flex items-center rounded-md p-1 bg-muted border border-border transition-all duration-200 ease-in-out "
         >
             <div
                 className={`w-6 h-6 bg-background rounded shadow-sm transition-transform duration-200 ease-in-out flex items-center justify-center `}

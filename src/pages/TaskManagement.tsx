@@ -16,12 +16,11 @@ import { useCategories } from "@/contexts/CategoriesContext";
 import AddCategoryModal from "@/components/AddCategoryModal";
 import exportTasks from "@/utils/exportJson";
 import { FileDown } from "lucide-react";
+import StatisticsLine from "@/components/StatisticsLine";
 const TaskManagement = () => {
     const { status, setStatus, setSearch, allTasks } = useTasks();
     const [showTaskModal, setShowTaskModal] = useState(false);
     const [showCategoryModal, setShowCategoryModal] = useState(false);
-    const total = allTasks?.length ?? 0;
-    const completed = allTasks?.filter((t) => t.completed).length ?? 0;
 
     const { categories } = useCategories();
     const { category, setCategory } = useTasks();
@@ -29,7 +28,7 @@ const TaskManagement = () => {
     return (
         <div className="max-w-5xl flex flex-col gap-y-4 py-10 px-4 w-full">
             {/* settings */}
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
                 <ThemeToggle />
                 <Button
                     onClick={() => exportTasks(allTasks)}
@@ -38,14 +37,17 @@ const TaskManagement = () => {
                     <FileDown className="w-5! h-5!" />
                 </Button>
             </div>
+
+            {/* search */}
             <Input
                 placeholder="Search Tasks..."
                 className="hover:shadow-md p-5"
                 onChange={(e) => setSearch(e.target.value)}
             />
+
             <div className="flex justify-between gap-4">
-                {/* filters */}
                 <div className="flex flex-wrap gap-4 w-full items-center justify-between">
+                    {/* filters */}
                     <div className="flex flex-wrap gap-2 items-center  w-full md:w-fit order-2 md:order-1">
                         {/* Status filter select */}
                         <Select value={status} onValueChange={setStatus}>
@@ -113,17 +115,7 @@ const TaskManagement = () => {
                     />
                 )}
             </div>
-            <div className="flex flex-col  gap-2 px-2">
-                <div className="text-sm text-muted-foreground text-end">
-                    {completed + "/" + total}
-                </div>
-                <div className="w-full h-1 bg-gray-200 rounded">
-                    <div
-                        className="h-1 bg-linear-to-r  to-primary from-primary/50  rounded"
-                        style={{ width: `${(completed / total) * 100}%` }}
-                    ></div>
-                </div>
-            </div>
+            <StatisticsLine />
             <TasksList />
         </div>
     );

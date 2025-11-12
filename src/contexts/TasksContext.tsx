@@ -57,7 +57,9 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
     const filterTasks = () => {
-        let filteredTasks = allTasks ? [...allTasks] : [];
+        if (!allTasks) return null;
+
+        let filteredTasks = [...allTasks];
         if (status !== "all") {
             const isCompleted = status === "completed";
             filteredTasks = filteredTasks.filter(
@@ -85,6 +87,9 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
     // Delete task
     const deleteTaskMutation = useMutation({
         mutationFn: async (id: number) => {
+            // iam doing this to prevent the case of deleting wrong id due to adding new ids
+            //  that are not stored in backend so if i tried to delete or update
+            // a new task i added , it will get a 404 not found that id
             const edited = await removeTask(1);
             if (edited) {
                 setAllTasks((prev) =>

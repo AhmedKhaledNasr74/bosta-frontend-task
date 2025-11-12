@@ -43,10 +43,10 @@ function SortableTask({ task }: { task: Task }) {
 
 export default function TasksList() {
     const { tasks, allTasks, setAllTasks, loading } = useTasks();
-    const [items, setItems] = useState(tasks || []);
+    const [items, setItems] = useState(tasks);
 
     useEffect(() => {
-        setItems(tasks || []);
+        setItems(tasks);
     }, [tasks]);
 
     const sensors = useSensors(
@@ -89,7 +89,19 @@ export default function TasksList() {
             </div>
         );
 
-    if (!items || items.length === 0)
+    if (!items)
+        return (
+            <div className="text-center py-16 text-muted-foreground">
+                <div className="text-lg font-medium mb-2">
+                    There is an error
+                </div>
+                <div className="text-sm">
+                    please refresh the page or try again later
+                </div>
+            </div>
+        );
+
+    if (items.length === 0)
         return (
             <div className="text-center py-16 text-muted-foreground">
                 <div className="text-lg font-medium mb-2">No tasks here</div>

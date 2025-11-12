@@ -13,7 +13,6 @@ type TaskProps = { task: Task; dragHandleProps: any };
 export default function TaskCard({ task, dragHandleProps }: TaskProps) {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [content, setContent] = useState<string>(task.todo || "");
-    const [isDone, setIsDone] = useState<boolean>(task.completed || false);
 
     const { deleteTask, editTask, deleting, editing } = useTasks();
     const { categories } = useCategories();
@@ -38,12 +37,6 @@ export default function TaskCard({ task, dragHandleProps }: TaskProps) {
             todo: content,
         });
     };
-
-    useEffect(() => {
-        if (!isEditing) {
-            setIsDone(task.completed);
-        }
-    }, [task.completed]);
 
     const handleToggle = () => {
         editTask(task.id, {
@@ -97,7 +90,7 @@ export default function TaskCard({ task, dragHandleProps }: TaskProps) {
                             <div className="w-full relative flex items-center justify-between gap-2">
                                 <div
                                     className={`text-foreground text-base font-medium leading-relaxed wrap-anywhere z-10 ${
-                                        isDone
+                                        task.completed
                                             ? "line-through text-muted-foreground"
                                             : ""
                                     }`}
