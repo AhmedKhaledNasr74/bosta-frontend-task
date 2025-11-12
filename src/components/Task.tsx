@@ -13,8 +13,10 @@ type TaskProps = { task: Task; dragHandleProps: any };
 export default function TaskCard({ task, dragHandleProps }: TaskProps) {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [content, setContent] = useState<string>(task.todo || "");
+    const [isSaving, setIsSaving] = useState<boolean>(false);
+    const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-    const { deleteTask, editTask, deleting, editing } = useTasks();
+    const { deleteTask, editTask } = useTasks();
     const { categories } = useCategories();
     const category = categories.find((c) => c.id === task.categoryId);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -30,19 +32,29 @@ export default function TaskCard({ task, dragHandleProps }: TaskProps) {
         }
     }, [isEditing]);
 
-    const handleSubmit = () => {
-        setIsEditing(false);
-        editTask(task.id, {
+    const handleSubmit = async () => {
+        setIsSaving(true);
+        await editTask(task.id, {
             ...task,
             todo: content,
         });
+        setIsSaving(false);
+        setIsEditing(false);
     };
 
-    const handleToggle = () => {
-        editTask(task.id, {
+    const handleToggle = async () => {
+        setIsSaving(true);
+        await editTask(task.id, {
             ...task,
             completed: !task.completed,
         });
+        setIsSaving(false);
+    };
+
+    const handleDelete = async () => {
+        setIsDeleting(true);
+        await deleteTask(task.id);
+        setIsDeleting(false);
     };
 
     return (
@@ -62,7 +74,7 @@ export default function TaskCard({ task, dragHandleProps }: TaskProps) {
                         className="w-5 h-5 transition-colors"
                         checked={task.completed}
                         onCheckedChange={handleToggle}
-                        disabled={editing}
+                        disabled={isSaving}
                         aria-label={
                             task.completed
                                 ? `Mark "${task.todo}" as incomplete`
@@ -116,15 +128,20 @@ export default function TaskCard({ task, dragHandleProps }: TaskProps) {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center gap-1  ">
+                <div className="flex items-center gap-1">
                     {isEditing ? (
                         <Button
                             variant="ghost"
                             className="p-1.5 h-fit text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
                             onClick={handleSubmit}
+                            disabled={isSaving}
                             aria-label="Save task"
                         >
-                            <Check className="w-4 h-4" />
+                            {isSaving ? (
+                                <Loader className="w-4 h-4 text-primary animate-spin" />
+                            ) : (
+                                <Check className="w-4 h-4" />
+                            )}
                         </Button>
                     ) : (
                         <Button
@@ -134,10 +151,10 @@ export default function TaskCard({ task, dragHandleProps }: TaskProps) {
                                 setContent(task.todo);
                                 setIsEditing(true);
                             }}
-                            disabled={editing}
+                            disabled={isSaving}
                             aria-label="Edit task"
                         >
-                            {editing ? (
+                            {isSaving ? (
                                 <Loader className="w-4 h-4 text-primary animate-spin" />
                             ) : (
                                 <Edit className="w-4 h-4" />
@@ -147,11 +164,11 @@ export default function TaskCard({ task, dragHandleProps }: TaskProps) {
                     <Button
                         variant="ghost"
                         className="p-1.5 h-fit text-muted-foreground hover:text-destructive hover:bg-accent rounded-md transition-colors"
-                        onClick={() => deleteTask(task.id)}
-                        disabled={deleting}
+                        onClick={handleDelete}
+                        disabled={isDeleting}
                         aria-label="Delete task"
                     >
-                        {deleting ? (
+                        {isDeleting ? (
                             <Loader className="w-4 h-4 text-primary animate-spin" />
                         ) : (
                             <Trash2 className="w-4 h-4" />
