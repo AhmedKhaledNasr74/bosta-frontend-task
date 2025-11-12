@@ -51,7 +51,10 @@ const TaskManagement = () => {
                     <div className="flex flex-wrap gap-2 items-center  w-full md:w-fit order-2 md:order-1">
                         {/* Status filter select */}
                         <Select value={status} onValueChange={setStatus}>
-                            <SelectTrigger className="flex-1 min-w-[180px]">
+                            <SelectTrigger
+                                className="flex-1 min-w-[180px]"
+                                aria-label="status filter"
+                            >
                                 <SelectValue placeholder="Select Status" />
                             </SelectTrigger>
                             <SelectContent>
@@ -64,7 +67,10 @@ const TaskManagement = () => {
                         </Select>
                         {/* Category filter select */}
                         <Select value={category} onValueChange={setCategory}>
-                            <SelectTrigger className="flex-1 min-w-[180px]">
+                            <SelectTrigger
+                                className="flex-1 min-w-[180px]"
+                                aria-label="category filter"
+                            >
                                 <SelectValue placeholder="Select Category" />
                             </SelectTrigger>
                             <SelectContent>
@@ -93,12 +99,14 @@ const TaskManagement = () => {
                             className="px-10 flex-1 md:flex-initial border border-border"
                             variant={"secondary"}
                             onClick={() => setShowCategoryModal(true)}
+                            aria-label="add category"
                         >
                             Add Category
                         </Button>
                         {/* add new task */}
                         <Button
                             className="px-10 flex-1 md:flex-initial"
+                            aria-label="add task"
                             onClick={() => setShowTaskModal(true)}
                         >
                             Add Task

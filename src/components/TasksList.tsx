@@ -44,6 +44,7 @@ function SortableTask({ task }: { task: Task }) {
 export default function TasksList() {
     const { tasks, allTasks, setAllTasks, loading } = useTasks();
     const [items, setItems] = useState(tasks);
+    const [keyboardDragging, setKeyboardDragging] = useState(false); // Track keyboard drag
 
     useEffect(() => {
         setItems(tasks);
@@ -56,8 +57,20 @@ export default function TasksList() {
             coordinateGetter: sortableKeyboardCoordinates,
         })
     );
+    const handleDragStart = (event: any) => {
+        if (event.activatorEvent.dndKit.capturedBy.name === "KeyboardSensor") {
+            setKeyboardDragging(true);
+        }
+    };
 
     const handleDragEnd = (event: any) => {
+        if (
+            keyboardDragging &&
+            event.activatorEvent.dndKit.capturedBy.name === "KeyboardSensor"
+        ) {
+            setKeyboardDragging(false); // End keyboard drag
+        }
+
         const { active, over } = event;
         if (!over || active.id === over.id) return;
 
@@ -116,12 +129,18 @@ export default function TasksList() {
             sensors={sensors}
             collisionDetection={closestCorners}
             onDragEnd={handleDragEnd}
+            onDragStart={handleDragStart}
         >
+            {keyboardDragging && (
+                <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-yellow-200 text-black px-4 py-2 rounded shadow z-50">
+                    Keyboard drag active. Press spacebar again to stop.
+                </div>
+            )}
             <SortableContext
                 items={items.map((t) => t.id)}
                 strategy={verticalListSortingStrategy}
             >
-                <div className="space-y-3">
+                <div className="space-y-3" role="list">
                     {items.map((task) => (
                         <SortableTask key={task.id} task={task} />
                     ))}

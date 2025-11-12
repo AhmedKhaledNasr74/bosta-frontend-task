@@ -35,10 +35,15 @@ const AddCategoryModal = ({ onClose }: AddCategoryModalProps) => {
                     </div>
                 </CardContent>
                 <CardFooter className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={onClose}>
+                    <Button
+                        variant="outline"
+                        onClick={onClose}
+                        aria-label="cancel adding category"
+                    >
                         Cancel
                     </Button>
                     <Button
+                        aria-label="add category"
                         onClick={() => {
                             if (!name.trim()) return;
                             addCategory(name, color);

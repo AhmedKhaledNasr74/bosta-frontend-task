@@ -78,10 +78,15 @@ const AddTaskModal = ({ onClose }: AddTaskModalProps) => {
                     </Select>
                 </CardContent>
                 <CardFooter className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={onClose}>
+                    <Button
+                        variant="outline"
+                        onClick={onClose}
+                        aria-label="cancel adding task"
+                    >
                         Cancel
                     </Button>
                     <Button
+                        aria-label="add task"
                         onClick={async () => {
                             if (!task.todo.trim()) return;
                             const addedTask = await addTask({
