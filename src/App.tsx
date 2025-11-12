@@ -7,16 +7,16 @@ import { CategoriesProvider } from "./contexts/CategoriesContext";
 
 function App() {
     return (
-        <ThemeProvider>
-            <div className="  min-h-screen flex justify-center bg-background ">
-                <Toaster position="top-right" />
+        <div className="  min-h-screen flex justify-center bg-background ">
+            <ThemeProvider>
                 <CategoriesProvider>
                     <TasksProvider>
+                        <Toaster position="top-right" />
                         <TaskManagement />
                     </TasksProvider>
                 </CategoriesProvider>
-            </div>
-        </ThemeProvider>
+            </ThemeProvider>
+        </div>
     );
 }
 

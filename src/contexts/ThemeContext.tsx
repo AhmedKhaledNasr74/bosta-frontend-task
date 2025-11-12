@@ -36,14 +36,20 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     });
 
     const toggleTheme = () => {
+        // Temporarily disable transitions
+        const html = document.documentElement;
+        html.classList.add("disable-transitions");
+
         setTheme((prev) => {
             const newTheme = prev === "light" ? "dark" : "light";
             localStorage.setItem("theme", newTheme);
-            document.documentElement.classList.toggle(
-                "dark",
-                newTheme === "dark"
-            );
+            html.classList.toggle("dark", newTheme === "dark");
             return newTheme;
+        });
+
+        // Force a reflow so the class takes effect, then remove it
+        requestAnimationFrame(() => {
+            html.classList.remove("disable-transitions");
         });
     };
 

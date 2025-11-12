@@ -14,10 +14,14 @@ import {
 } from "@/components/ui/select";
 import { useCategories } from "@/contexts/CategoriesContext";
 import AddCategoryModal from "@/components/AddCategoryModal";
+import exportTasks from "@/utils/exportJson";
+import { FileDown } from "lucide-react";
 const TaskManagement = () => {
-    const { status, setStatus, setSearch } = useTasks();
+    const { status, setStatus, setSearch, allTasks } = useTasks();
     const [showTaskModal, setShowTaskModal] = useState(false);
     const [showCategoryModal, setShowCategoryModal] = useState(false);
+    const total = allTasks?.length ?? 0;
+    const completed = allTasks?.filter((t) => t.completed).length ?? 0;
 
     const { categories } = useCategories();
     const { category, setCategory } = useTasks();
@@ -25,8 +29,14 @@ const TaskManagement = () => {
     return (
         <div className="max-w-5xl flex flex-col gap-y-4 py-10 px-4 w-full">
             {/* settings */}
-            <div>
+            <div className="flex justify-between">
                 <ThemeToggle />
+                <Button
+                    onClick={() => exportTasks(allTasks)}
+                    aria-label="export json"
+                >
+                    <FileDown className="w-5! h-5!" />
+                </Button>
             </div>
             <Input
                 placeholder="Search Tasks..."
@@ -102,6 +112,17 @@ const TaskManagement = () => {
                         onClose={() => setShowCategoryModal(false)}
                     />
                 )}
+            </div>
+            <div className="flex flex-col  gap-2 px-2">
+                <div className="text-sm text-muted-foreground text-end">
+                    {completed + "/" + total}
+                </div>
+                <div className="w-full h-1 bg-gray-200 rounded">
+                    <div
+                        className="h-1 bg-linear-to-r  to-primary from-primary/50  rounded"
+                        style={{ width: `${(completed / total) * 100}%` }}
+                    ></div>
+                </div>
             </div>
             <TasksList />
         </div>
