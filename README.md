@@ -119,7 +119,7 @@ src/
 
 ### Add Task Modal
 
-![Task Modal](./screenshots/add-modal.png)
+![Task Modal](./screenshots/add-Modal.png)
 
 ### keyboard drag and drop
 
