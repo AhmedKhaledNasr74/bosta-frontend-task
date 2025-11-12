@@ -4,16 +4,19 @@ import { useState, useEffect } from "react";
 
 import {
     DndContext,
-    closestCenter,
-    PointerSensor,
+    TouchSensor,
+    KeyboardSensor,
     useSensor,
     useSensors,
+    closestCorners,
+    MouseSensor,
 } from "@dnd-kit/core";
 import {
     arrayMove,
     SortableContext,
     useSortable,
     verticalListSortingStrategy,
+    sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import type Task from "@/interfaces/Task";
 
@@ -23,7 +26,7 @@ function SortableTask({ task }: { task: Task }) {
 
     const style = {
         transform: transform
-            ? `translate3d(0, ${transform.y}px, 0)` // ⬅️ vertical only
+            ? `translate3d(0, ${transform.y}px, 0)` // vertical only
             : undefined,
         transition,
     };
@@ -46,7 +49,13 @@ export default function TasksList() {
         setItems(tasks || []);
     }, [tasks]);
 
-    const sensors = useSensors(useSensor(PointerSensor));
+    const sensors = useSensors(
+        useSensor(TouchSensor),
+        useSensor(MouseSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     const handleDragEnd = (event: any) => {
         const { active, over } = event;
@@ -60,14 +69,12 @@ export default function TasksList() {
 
         if (allTasks) {
             const newAllTasks = [...allTasks];
-
             newItems.forEach((task, index) => {
                 const idx = newAllTasks.findIndex((t) => t.id === task.id);
                 if (idx !== -1) {
                     newAllTasks[idx] = { ...task, position: index + 1 };
                 }
             });
-
             setAllTasks(newAllTasks);
         }
     };
@@ -95,7 +102,7 @@ export default function TasksList() {
     return (
         <DndContext
             sensors={sensors}
-            collisionDetection={closestCenter}
+            collisionDetection={closestCorners}
             onDragEnd={handleDragEnd}
         >
             <SortableContext

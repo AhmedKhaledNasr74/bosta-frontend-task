@@ -12,13 +12,14 @@ import {
 } from "./ui/select";
 import type Task from "@/interfaces/Task";
 import { useCategories } from "@/contexts/CategoriesContext";
+import { Loader } from "lucide-react";
 
 type AddTaskModalProps = {
     onClose: () => void;
 };
 
 const AddTaskModal = ({ onClose }: AddTaskModalProps) => {
-    const { addTask } = useTasks();
+    const { addTask, adding } = useTasks();
     const { categories } = useCategories();
 
     const [task, setTask] = useState<Task>({
@@ -89,8 +90,14 @@ const AddTaskModal = ({ onClose }: AddTaskModalProps) => {
                             });
                             if (addedTask) onClose();
                         }}
+                        disabled={adding}
+                        className="min-w-[100px]"
                     >
-                        Add Task
+                        {adding ? (
+                            <Loader className="w-4 h-4 animate-spin" />
+                        ) : (
+                            "Add Task"
+                        )}
                     </Button>
                 </CardFooter>
             </Card>

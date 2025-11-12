@@ -6,7 +6,7 @@ import {
 } from "@/apis/taskManagement";
 import type Task from "@/interfaces/Task";
 import { createContext, useContext, useEffect, useState } from "react";
-
+import { useMutation } from "@tanstack/react-query";
 interface TasksContextType {
     tasks: Task[];
     allTasks: Task[];
@@ -22,6 +22,9 @@ interface TasksContextType {
     loading: boolean;
     search: string;
     setSearch: (search: string) => void;
+    adding: boolean;
+    editing: boolean;
+    deleting: boolean;
 }
 
 const TasksContext = createContext<TasksContextType | null>(null);
@@ -43,10 +46,10 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
                     position: index,
                 }));
                 setAllTasks(orderedData);
-                setTasks(orderedData);
+                // setTasks(orderedData);
             } else {
                 setAllTasks(null);
-                setTasks(null);
+                // setTasks(null);
             }
             setLoading(false);
         };
@@ -79,51 +82,58 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
         setTasks(filterTasks());
     }, [category, status, allTasks, search]);
 
-    const deleteTask = async (taskId: number) => {
-        const deletedTask = await removeTask(1);
-        if (deletedTask) {
-            setAllTasks((prevTasks) =>
-                prevTasks ? prevTasks.filter((task) => task.id !== taskId) : []
-            );
-        }
-    };
+    // Delete task
+    const deleteTaskMutation = useMutation({
+        mutationFn: async (id: number) => {
+            const edited = await removeTask(1);
+            if (edited) {
+                setAllTasks((prev) =>
+                    prev ? prev.filter((t) => t.id !== id) : []
+                );
+            }
+        },
+    });
 
-    const editTask = async (taskId: number, newTask: Task) => {
-        const editedTask = await updateTask(1, newTask);
-        if (editedTask) {
-            setAllTasks((prevTasks) =>
-                prevTasks
-                    ? prevTasks.map((task) =>
-                          task.id === taskId
-                              ? { ...newTask, position: newTask.position }
-                              : task
-                      )
-                    : []
-            );
-        }
-    };
+    // Edit task
+    const editTaskMutation = useMutation({
+        mutationFn: async ({ id, task }: { id: number; task: Task }) => {
+            const edited = await updateTask(1, task); // <-- keep your original "1"
+            if (edited) {
+                setAllTasks((prev) =>
+                    prev
+                        ? prev.map((t) =>
+                              t.id === id
+                                  ? { ...task, position: task.position }
+                                  : t
+                          )
+                        : []
+                );
+            }
+            return edited;
+        },
+    });
 
-    const addTask = async (task: Task) => {
-        const addedTask = await addNewTask(task);
+    const addTaskMutation = useMutation({
+        mutationFn: async (task: Task) => {
+            const added = await addNewTask(task);
+            if (added) {
+                setAllTasks((prevTasks) => {
+                    if (!prevTasks) return [{ ...task, position: 1 }];
 
-        if (addedTask) {
-            setAllTasks((prevTasks) => {
-                if (!prevTasks) return [{ ...task, position: 1 }];
+                    const updatedTasks = [
+                        { ...task, position: 1 },
+                        ...prevTasks.map((t) => ({
+                            ...t,
+                            position: t.position + 1,
+                        })),
+                    ];
 
-                const updatedTasks = [
-                    { ...task, position: 1 },
-                    ...prevTasks.map((t) => ({
-                        ...t,
-                        position: t.position + 1,
-                    })),
-                ];
-
-                return updatedTasks;
-            });
-        }
-
-        return addedTask;
-    };
+                    return updatedTasks;
+                });
+            }
+            return added;
+        },
+    });
 
     return (
         <TasksContext.Provider
@@ -133,15 +143,19 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
                     setAllTasks,
                     tasks,
                     loading,
-                    deleteTask,
-                    editTask,
+                    deleteTask: (id) => deleteTaskMutation.mutateAsync(id),
+                    editTask: (id, task) =>
+                        editTaskMutation.mutateAsync({ id, task }),
                     category,
                     status,
                     setCategory,
                     setStatus,
                     search,
                     setSearch,
-                    addTask,
+                    addTask: (task) => addTaskMutation.mutateAsync(task),
+                    adding: addTaskMutation.isPending,
+                    editing: editTaskMutation.isPending,
+                    deleting: deleteTaskMutation.isPending,
                 } as TasksContextType
             }
         >

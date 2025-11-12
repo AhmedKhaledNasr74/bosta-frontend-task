@@ -4,7 +4,7 @@ import { Checkbox } from "./ui/checkbox";
 import { useState } from "react";
 import { useTasks } from "@/contexts/TasksContext";
 import { Button } from "./ui/button";
-import { Check, Edit, GripVertical, Trash2 } from "lucide-react";
+import { Check, Edit, GripVertical, Loader, Trash2 } from "lucide-react";
 import { useCategories } from "@/contexts/CategoriesContext";
 
 type TaskProps = { task: Task; dragHandleProps: any };
@@ -29,7 +29,7 @@ export default function TaskCard({ task, dragHandleProps }: TaskProps) {
         });
     };
 
-    const { deleteTask, editTask } = useTasks();
+    const { deleteTask, editTask, deleting, editing } = useTasks();
     const { categories } = useCategories();
     const category = categories.find((c) => c.id === task.categoryId);
     return (
@@ -81,30 +81,6 @@ export default function TaskCard({ task, dragHandleProps }: TaskProps) {
                             </div>
                         )}
                     </div>
-
-                    {/* {task.dueDate && (
-                                <div className="flex items-center gap-2 mt-3">
-                                    <svg
-                                        className="w-4 h-4 text-muted-foreground"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                        />
-                                    </svg>
-                                    <span className="text-xs text-muted-foreground">
-                                        Due{" "}
-                                        {new Date(
-                                            task.dueDate
-                                        ).toLocaleDateString()}
-                                    </span>
-                                </div>
-                            )} */}
                 </div>
 
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -121,16 +97,26 @@ export default function TaskCard({ task, dragHandleProps }: TaskProps) {
                             variant={"ghost"}
                             className="p-1.5! h-fit text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
                             onClick={() => setIsEditing(true)}
+                            disabled={editing}
                         >
-                            <Edit className="w-4 h-4" />
+                            {editing ? (
+                                <Loader className="w-4 h-4 text-primary animate-spin" />
+                            ) : (
+                                <Edit className="w-4 h-4" />
+                            )}
                         </Button>
                     )}
                     <Button
                         variant={"ghost"}
                         className="p-1.5! h-fit text-muted-foreground hover:text-destructive hover:bg-accent rounded-md transition-colors"
                         onClick={() => deleteTask(task.id)}
+                        disabled={deleting}
                     >
-                        <Trash2 className="w-4 h-4" />
+                        {deleting ? (
+                            <Loader className="w-4 h-4 text-primary animate-spin" />
+                        ) : (
+                            <Trash2 className="w-4 h-4" />
+                        )}
                     </Button>
                 </div>
             </div>
