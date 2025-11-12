@@ -116,7 +116,7 @@ export default function TaskCard({ task, dragHandleProps }: TaskProps) {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1  ">
                     {isEditing ? (
                         <Button
                             variant="ghost"
