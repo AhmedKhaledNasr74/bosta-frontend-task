@@ -125,13 +125,17 @@ src/
 
 ![keyboard navigation](./screenshots/keyboard-drag.png)
 
+### Lighthouse test
+
+![Lighthouse test](./screenshots/lighthouse.png)
+
+-   please disable all the extensions or run on incognito mode to see this result
+
 ## Known Limitations & Future Enhancements
 
-Task List
+-   Task due dates and reminders can be added.
 
-Add Task Modal
-
-Dark Theme
+-   Export to CSV.
 
 ## Personal Reflection
 
